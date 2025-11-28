@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Library Management System</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div id="app">
+        <!-- Login View -->
+        <div id="login-view" class="view active">
+            <div class="login-card">
+                <h1>Library Portal</h1>
+                <p>Enter your credentials to access the system.</p>
+                <form id="login-form">
+                    <input type="text" id="username" placeholder="Username" required>
+                    <input type="password" id="password" placeholder="Password" required>
+                    <select id="role-select" required
+                        style="width: 100%; padding: 0.75rem; margin-bottom: 1rem; border: 1px solid #d1d5db; border-radius: 0.5rem; font-size: 1rem;">
+                        <option value="" disabled selected>Select Role</option>
+                        <option value="student">Student</option>
+                        <option value="faculty">Faculty</option>
+                        <option value="admin">Admin</option>
+                    </select>
+                    <button type="submit">Login</button>
+                </form>
+                <div id="login-error" class="error-msg"></div>
+            </div>
+        </div>
+
+        <!-- Dashboard View -->
+        <div id="dashboard-view" class="view">
+            <header>
+                <div class="logo">📚 LMS</div>
+                <div class="user-info">
+                    <span id="user-display">User</span>
+                    <button id="logout-btn">Logout</button>
+                    <input type="text" id="book-search" placeholder="Search by title or author...">
+                </div>
+                <div id="book-list" class="grid-container">
+                    <!-- Books will be injected here -->
+                </div>
+        </div>
+
+        <!-- Slots Tab -->
+        <div id="slots-tab" class="tab-content">
+            <h2>Study Zone Availability</h2>
+
+            <!-- Filter and Search Controls -->
+            <div class="slot-controls">
+                <div class="filter-group">
+                    <label for="slot-filter">Filter:</label>
+                    <select id="slot-filter">
+                        <option value="all">All Seats</option>
+                        <option value="free">Available Only</option>
+                        <option value="booked">Occupied Only</option>
+                    </select>
+                </div>
+                <div class="search-group">
+                    <input type="text" id="slot-search" placeholder="Search seat number (e.g., Seat 5, Room 2)...">
+                </div>
+            </div>
+
+            <div id="slot-list" class="grid-container">
+                <!-- Slots will be injected here -->
+            </div>
+
+            <!-- DevTools for Simulation -->
+            <div class="dev-tools">
+                <h3>🛠 Developer Tools</h3>
+                <p>Simulate user leaving a zone to trigger auto-dismissal.</p>
+                <div id="active-slots"></div>
+            </div>
+        </div>
+
+        <!-- History Tab -->
+        <div id="history-tab" class="tab-content">
+            <h2>My Borrowing History</h2>
+            <ul id="history-list">
+                <!-- History items -->
+            </ul>
+        </div>
+
+        <!-- Admin Tab -->
+        <div id="admin-tab" class="tab-content">
+            <h2>Admin Dashboard</h2>
+
+            <!-- Add Book -->
+            <div class="admin-card">
+                <h3>Add New Book</h3>
+                <form id="add-book-form">
+                    <input type="text" id="new-title" placeholder="Title" required>
+                    <input type="text" id="new-author" placeholder="Author" required>
+                    <input type="number" id="new-floor" placeholder="Floor" required>
+                    <input type="text" id="new-shelf" placeholder="Shelf" required>
+                    <button type="submit">Add Book</button>
+                </form>
+            </div>
+
+            <!-- Fine Calculator -->
+            <div class="admin-card" style="margin-top: 2rem;">
+                <h3>📊 Fine Calculator</h3>
+                <p style="color: var(--text-muted); margin-bottom: 1rem; font-size: 0.875rem;">
+                    Calculate overdue book fines (₹100 per day after due date)
+                </p>
+                <div style="display: flex; gap: 1rem; margin-bottom: 1rem;">
+                    <div style="flex: 1;">
+                        <label
+                            style="display: block; color: var(--text-muted); font-size: 0.875rem; margin-bottom: 0.5rem;">Due
+                            Date</label>
+                        <input type="date" id="fine-due-date"
+                            style="width: 100%; padding: 0.75rem; background: var(--dark-lighter); border: 1px solid var(--border); border-radius: 8px; color: var(--text);">
+                    </div>
+                    <div style="flex: 1;">
+                        <label
+                            style="display: block; color: var(--text-muted); font-size: 0.875rem; margin-bottom: 0.5rem;">Return
+                            Date</label>
+                        <input type="date" id="fine-return-date"
+                            style="width: 100%; padding: 0.75rem; background: var(--dark-lighter); border: 1px solid var(--border); border-radius: 8px; color: var(--text);">
+                    </div>
+                </div>
+                <button onclick="calculateFine()"
+                    style="width: 100%; padding: 0.75rem; background: linear-gradient(135deg, var(--secondary), #d946a6); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; margin-bottom: 1rem;">Calculate
+                    Fine</button>
+                <div id="fine-result"
+                    style="padding: 1rem; background: var(--dark-lighter); border-radius: 8px; border: 1px solid var(--border); display: none;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <p style="color: var(--text-muted); font-size: 0.875rem; margin-bottom: 0.25rem;">
+                                Days Overdue</p>
+                            <p id="days-overdue" style="font-size: 1.5rem; font-weight: 700; color: var(--warning);">0
+                            </p>
+                        </div>
+                        <div style="text-align: right;">
+                            <p style="color: var(--text-muted); font-size: 0.875rem; margin-bottom: 0.25rem;">
+                                Total Fine</p>
+                            <p id="total-fine" style="font-size: 1.5rem; font-weight: 700; color: var(--danger);">₹0</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- All Transactions -->
+            <div class="admin-card" style="margin-top: 2rem;">
+                <h3>📚 All Book Transactions</h3>
+                <p style="color: var(--text-muted); margin-bottom: 1rem; font-size: 0.875rem;">
+                    View all book borrowings and calculate fines with one click
+                </p>
+                <div id="all-transactions" class="grid-container">
+                    <!-- Transactions will be loaded here -->
+                </div>
+            </div>
+        </div>
+        </main>
+    </div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="js/app.js"></script>
+</body>
+
+</html>
